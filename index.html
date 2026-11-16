@@ -1,1699 +1,792 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chung Văn | Backend Developer</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    :root {
-      --primary-color: #6366f1;
-      --secondary-color: #8b5cf6;
-      --accent-color: #06d6a0;
-      --dark-bg: #0f172a;
-      --darker-bg: #020617;
-      --text-color: #f8fafc;
-      --text-muted: #cbd5e1;
-      --glass-bg: rgba(255, 255, 255, 0.05);
-      --glass-border: rgba(255, 255, 255, 0.1);
-      --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.3);
-      --shadow-soft: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
-    
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      line-height: 1.7;
-      color: var(--text-color);
-      background: var(--darker-bg);
-      overflow-x: hidden;
-    }
-    
-    html {
-      scroll-behavior: smooth;
-    }
-    
-    /* Animated Background */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(6, 214, 160, 0.05) 0%, transparent 50%);
-      animation: backgroundShift 20s ease-in-out infinite;
-      z-index: -2;
-    }
-    
-    @keyframes backgroundShift {
-      0%, 100% { transform: scale(1) rotate(0deg); }
-      50% { transform: scale(1.1) rotate(5deg); }
-    }
-    
-    /* Floating particles */
-    .particles {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      pointer-events: none;
-    }
-    
-    .particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      background: rgba(99, 102, 241, 0.3);
-      border-radius: 50%;
-      animation: float 15s infinite linear;
-    }
-    
-    @keyframes float {
-      0% {
-        transform: translateY(100vh) rotate(0deg);
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      90% {
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(-10vh) rotate(360deg);
-        opacity: 0;
-      }
-    }
-    
-    /* Navigation */
-    .navbar {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--glass-border);
-      z-index: 1000;
-      padding: 1rem 0;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .navbar.scrolled {
-      background: rgba(15, 23, 42, 0.95);
-      box-shadow: var(--shadow-soft);
-      transform: translateY(0);
-    }
-    
-    .nav-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .logo {
-      font-size: 1.5rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      position: relative;
-      transition: transform 0.3s ease;
-    }
-    
-    .logo:hover {
-      transform: scale(1.05);
-    }
-    
-    .logo::after {
-      content: '';
-      position: absolute;
-      bottom: -5px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      transform: scaleX(0);
-      transition: transform 0.3s ease;
-    }
-    
-    .logo:hover::after {
-      transform: scaleX(1);
-    }
-    
-    .nav-links {
-      display: flex;
-      list-style: none;
-      gap: 2rem;
-    }
-    
-    .nav-links a {
-      text-decoration: none;
-      color: var(--text-muted);
-      font-weight: 500;
-      position: relative;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .nav-links a:hover {
-      color: var(--text-color);
-      background: var(--glass-bg);
-      transform: translateY(-2px);
-    }
-    
-    .mobile-menu {
-      display: none;
-      flex-direction: column;
-      cursor: pointer;
-      gap: 4px;
-      position: relative;
-      z-index: 1001;
-      padding: 8px;
-    }
-    
-    .mobile-menu span {
-      width: 25px;
-      height: 2px;
-      background: var(--text-color);
-      border-radius: 2px;
-      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      transform-origin: center;
-    }
-    
-    .mobile-menu.active span:nth-child(1) {
-      transform: rotate(45deg) translate(7px, 7px);
-      background: var(--accent-color);
-    }
-    
-    .mobile-menu.active span:nth-child(2) {
-      opacity: 0;
-      transform: scaleX(0);
-    }
-    
-    .mobile-menu.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(7px, -7px);
-      background: var(--accent-color);
-    }
-    
-    /* Mobile Navigation */
-    .mobile-nav-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: linear-gradient(135deg, var(--dark-bg), var(--darker-bg));
-      z-index: 999;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      transform: translateY(-100%);
-      transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      backdrop-filter: blur(20px);
-    }
-    
-    .mobile-nav-overlay::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 30% 40%, rgba(99, 102, 241, 0.1) 0%, transparent 60%),
-        radial-gradient(circle at 70% 60%, rgba(139, 92, 246, 0.1) 0%, transparent 60%);
-      animation: overlayPulse 8s ease-in-out infinite;
-    }
-    
-    @keyframes overlayPulse {
-      0%, 100% { opacity: 0.5; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(1.1); }
-    }
-    
-    .mobile-nav-overlay.active {
-      transform: translateY(0);
-    }
-    
-    .mobile-social-section {
-      text-align: center;
-      position: relative;
-      z-index: 2;
-    }
-    
-    .mobile-social-title {
-      color: var(--text-color);
-      font-size: 2.5rem;
-      font-weight: 800;
-      margin-bottom: 3rem;
-      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: titleGlow 2s ease-in-out infinite alternate;
-    }
-    
-    @keyframes titleGlow {
-      0% { filter: brightness(1); }
-      100% { filter: brightness(1.2); }
-    }
-    
-    .mobile-social-links {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      align-items: center;
-    }
-    
-    .mobile-social-link {
-      display: flex;
-      align-items: center;
-      background: var(--glass-bg);
-      padding: 1.5rem 2.5rem;
-      border-radius: 20px;
-      color: var(--text-color);
-      text-decoration: none;
-      transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      min-width: 320px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: var(--shadow-soft);
-    }
-    
-    .mobile-social-link::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-      transition: left 0.8s ease;
-    }
-    
-    .mobile-social-link:hover::before {
-      left: 100%;
-    }
-    
-    .mobile-social-link:hover {
-      transform: translateY(-8px) scale(1.05);
-      box-shadow: var(--shadow-glow);
-      background: rgba(99, 102, 241, 0.1);
-      border: 1px solid rgba(99, 102, 241, 0.3);
-    }
-    
-    .mobile-social-icon {
-      width: 50px;
-      height: 50px;
-      margin-right: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 15px;
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      font-size: 1.5rem;
-      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
-    }
-    
-    .mobile-social-link:hover .mobile-social-icon {
-      transform: rotate(360deg) scale(1.2);
-      box-shadow: 0 12px 30px rgba(99, 102, 241, 0.5);
-    }
-    
-    .mobile-social-info {
-      text-align: left;
-      flex: 1;
-    }
-    
-    .mobile-social-platform {
-      font-weight: 700;
-      font-size: 1.2rem;
-      display: block;
-      margin-bottom: 4px;
-    }
-    
-    .mobile-social-handle {
-      font-size: 0.9rem;
-      opacity: 0.7;
-      display: block;
-      font-weight: 400;
-    }
-    
-    /* Hero Section */
-    .hero {
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      color: var(--text-color);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: conic-gradient(from 0deg, transparent, rgba(99, 102, 241, 0.1), transparent);
-      animation: rotate 30s linear infinite;
-      z-index: -1;
-    }
-    
-    @keyframes rotate {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      animation: heroEnter 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    }
-    
-    @keyframes heroEnter {
-      0% {
-        opacity: 0;
-        transform: translateY(100px) scale(0.9);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-    
-    .avatar {
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      border: 4px solid rgba(99, 102, 241, 0.3);
-      margin-bottom: 2rem;
-      object-fit: cover;
-      animation: avatarFloat 4s ease-in-out infinite;
-      position: relative;
-      transition: all 0.4s ease;
-    }
-    
-    .avatar::before {
-      content: '';
-      position: absolute;
-      top: -10px;
-      left: -10px;
-      right: -10px;
-      bottom: -10px;
-      border-radius: 50%;
-      background: conic-gradient(var(--primary-color), var(--secondary-color), var(--accent-color), var(--primary-color));
-      z-index: -1;
-      animation: avatarGlow 3s ease-in-out infinite;
-    }
-    
-    .avatar:hover {
-      transform: scale(1.1);
-      border-color: var(--accent-color);
-    }
-    
-    @keyframes avatarFloat {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-15px) rotate(5deg); }
-    }
-    
-    @keyframes avatarGlow {
-      0%, 100% { opacity: 0.3; transform: rotate(0deg); }
-      50% { opacity: 0.7; transform: rotate(180deg); }
-    }
-    
-    .hero h1 {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--text-color), var(--primary-color), var(--accent-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: textShimmer 3s ease-in-out infinite;
-    }
-    
-    @keyframes textShimmer {
-      0%, 100% { filter: brightness(1); }
-      50% { filter: brightness(1.3); }
-    }
-    
-    .hero .subtitle {
-      font-size: 1.3rem;
-      margin-bottom: 2rem;
-      color: var(--text-muted);
-      animation: typewriter 3s steps(40) 1s forwards;
-      overflow: hidden;
-      white-space: nowrap;
-      width: 0;
-      border-right: 2px solid var(--accent-color);
-    }
-    
-    @keyframes typewriter {
-      to { width: 100%; }
-    }
-    
-    .hero .description {
-      font-size: 1.2rem;
-      max-width: 700px;
-      margin: 0 auto 3rem;
-      color: var(--text-muted);
-      line-height: 1.8;
-      animation: fadeInUp 1s ease 1.5s both;
-    }
-    
-    .cta-buttons {
-      display: flex;
-      gap: 1.5rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      animation: fadeInUp 1s ease 2s both;
-    }
-    
-    .btn {
-      display: inline-block;
-      padding: 16px 40px;
-      text-decoration: none;
-      border-radius: 50px;
-      font-weight: 600;
-      font-size: 1.1rem;
-      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.6s ease;
-    }
-    
-    .btn:hover::before {
-      left: 100%;
-    }
-    
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      color: var(--text-color);
-      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
-    }
-    
-    .btn-outline {
-      background: transparent;
-      color: var(--text-color);
-      border: 2px solid var(--glass-border);
-      backdrop-filter: blur(10px);
-    }
-    
-    .btn:hover {
-      transform: translateY(-5px) scale(1.05);
-    }
-    
-    .btn-primary:hover {
-      box-shadow: var(--shadow-glow);
-    }
-    
-    .btn-outline:hover {
-      background: var(--glass-bg);
-      border-color: var(--accent-color);
-      box-shadow: 0 10px 30px rgba(6, 214, 160, 0.3);
-    }
-    
-    /* Sections */
-    .section {
-      padding: 6rem 0;
-      position: relative;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
-    
-    .section-title {
-      text-align: center;
-      font-size: 3rem;
-      margin-bottom: 4rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--text-color), var(--primary-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      position: relative;
-      animation: fadeInUp 0.8s ease;
-    }
-    
-    .section-title::after {
-      content: '';
-      position: absolute;
-      bottom: -15px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100px;
-      height: 4px;
-      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-      border-radius: 2px;
-      animation: expandLine 1s ease 0.5s both;
-    }
-    
-    @keyframes expandLine {
-      0% { width: 0; }
-      100% { width: 100px; }
-    }
-    
-    /* About Section */
-    .about {
-      background: rgba(15, 23, 42, 0.5);
-      backdrop-filter: blur(10px);
-    }
-    
-    .about-content {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 5rem;
-      align-items: center;
-    }
-    
-    .about-text {
-      font-size: 1.2rem;
-      line-height: 2;
-      color: var(--text-muted);
-    }
-    
-    .about-text p {
-      margin-bottom: 1.5rem;
-      animation: fadeInLeft 0.8s ease;
-      animation-fill-mode: both;
-    }
-    
-    .about-text p:nth-child(2) { animation-delay: 0.2s; }
-    .about-text p:nth-child(3) { animation-delay: 0.4s; }
-    
-    @keyframes fadeInLeft {
-      0% {
-        opacity: 0;
-        transform: translateX(-50px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-    
-    .about-image {
-      text-align: center;
-      position: relative;
-    }
-    
-    .about-image::before {
-      content: '';
-      position: absolute;
-      top: -20px;
-      left: -20px;
-      right: -20px;
-      bottom: -20px;
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      border-radius: 30px;
-      z-index: -1;
-      opacity: 0.3;
-      animation: imageGlow 4s ease-in-out infinite;
-    }
-    
-    @keyframes imageGlow {
-      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
-      50% { transform: scale(1.05) rotate(3deg); opacity: 0.5; }
-    }
-    
-    .about-image img {
-      width: 350px;
-      height: 350px;
-      border-radius: 25px;
-      object-fit: cover;
-      box-shadow: var(--shadow-soft);
-      transition: transform 0.4s ease;
-      animation: fadeInRight 0.8s ease both;
-    }
-    
-    .about-image img:hover {
-      transform: scale(1.05) rotate(-2deg);
-    }
-    
-    @keyframes fadeInRight {
-      0% {
-        opacity: 0;
-        transform: translateX(50px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-    
-    /* Contact Section */
-    .contact {
-      background: linear-gradient(135deg, var(--dark-bg), var(--darker-bg));
-      position: relative;
-    }
-    
-    .contact::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(6, 214, 160, 0.1) 0%, transparent 50%);
-      animation: contactPulse 10s ease-in-out infinite;
-    }
-    
-    @keyframes contactPulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 0.8; }
-    }
-    
-    .contact-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5rem;
-      align-items: start;
-      position: relative;
-      z-index: 2;
-    }
-    
-    .contact-info {
-      font-size: 1.2rem;
-    }
-    
-    .contact-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 2rem;
-      padding: 1.5rem;
-      background: var(--glass-bg);
-      border-radius: 15px;
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      transition: all 0.4s ease;
-      animation: slideInLeft 0.8s ease;
-      animation-fill-mode: both;
-    }
-    
-    .contact-item:nth-child(2) { animation-delay: 0.2s; }
-    .contact-item:nth-child(3) { animation-delay: 0.4s; }
-    .contact-item:nth-child(4) { animation-delay: 0.6s; }
-    
-    .contact-item:hover {
-      transform: translateX(10px);
-      background: rgba(99, 102, 241, 0.1);
-      border-color: var(--primary-color);
-    }
-    
-    @keyframes slideInLeft {
-      0% {
-        opacity: 0;
-        transform: translateX(-50px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-    
-    .contact-icon {
-      font-size: 1.8rem;
-      margin-right: 1.5rem;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      transition: transform 0.3s ease;
-    }
-    
-    .contact-item:hover .contact-icon {
-      transform: scale(1.2) rotate(10deg);
-    }
-    
-    .contact-form {
-      background: var(--glass-bg);
-      padding: 3rem;
-      border-radius: 25px;
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--shadow-soft);
-      animation: slideInRight 0.8s ease both;
-    }
-    
-    @keyframes slideInRight {
-      0% {
-        opacity: 0;
-        transform: translateX(50px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-    
-    .contact-form h3 {
-      font-size: 1.8rem;
-      margin-bottom: 2rem;
-      color: var(--text-color);
-      text-align: center;
-    }
-    
-    .form-group {
-      margin-bottom: 2rem;
-    }
-    
-    .form-group label {
-      display: block;
-      margin-bottom: 0.8rem;
-      font-weight: 600;
-      color: var(--text-color);
-    }
-    
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 1.2rem;
-      border: none;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-color);
-      font-size: 1rem;
-      border: 1px solid var(--glass-border);
-      transition: all 0.3s ease;
-    }
-    
-    .form-group input:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      background: rgba(255, 255, 255, 0.08);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
-    }
-    
-    .form-group textarea {
-      resize: vertical;
-      min-height: 150px;
-    }
-    
-    /* Footer */
-    .footer {
-      background: var(--darker-bg);
-      color: var(--text-color);
-      text-align: center;
-      padding: 3rem 0;
-      border-top: 1px solid var(--glass-border);
-    }
-    
-    .social-links {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    
-    .social-link {
-      display: inline-flex;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: var(--glass-bg);
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      color: var(--text-color);
-      text-decoration: none;
-      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      border: 1px solid var(--glass-border);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .social-link::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .social-link:hover::before {
-      opacity: 1;
-    }
-    
-    .social-link svg {
-      position: relative;
-      z-index: 2;
-    }
-    
-    .social-link:hover {
-      transform: translateY(-8px) scale(1.1);
-      box-shadow: var(--shadow-glow);
-    }
-    
-    /* Animations */
-    @keyframes fadeInUp {
-      0% {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    .fade-in-up {
-      opacity: 0;
-      transform: translateY(50px);
-      transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    }
-    
-    .fade-in-up.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .nav-links {
-        display: none;
-      }
-      
-      .mobile-menu {
-        display: flex;
-      }
-      
-      .hero h1 {
-        font-size: 2.8rem;
-      }
-      
-      .hero .subtitle {
-        font-size: 1.1rem;
-      }
-      
-      .avatar {
-        width: 180px;
-        height: 180px;
-      }
-      
-      .about-content {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 3rem;
-      }
-      
-      .about-image img {
-        width: 280px;
-        height: 280px;
-      }
-      
-      .contact-content {
-        grid-template-columns: 1fr;
-        gap: 3rem;
-      }
-      
-      .cta-buttons {
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .section-title {
-        font-size: 2.2rem;
-      }
-      
-      .mobile-social-link {
-        min-width: 280px;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .container {
-        padding: 0 1rem;
-      }
-      
-      .hero h1 {
-        font-size: 2.2rem;
-      }
-      
-      .section {
-        padding: 4rem 0;
-      }
-      
-      .contact-form {
-        padding: 2rem;
-      }
-      
-      .mobile-social-link {
-        min-width: 260px;
-        padding: 1.2rem 2rem;
-      }
-      
-      .mobile-social-title {
-        font-size: 2rem;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080d18">
+<meta name="description" content="Chung Văn — từng theo đuổi lập trình, hiện đang sống và làm việc tại Yeosu, Hàn Quốc.">
+<title>Chung Văn | Personal Profile</title>
+
+<style>
+:root {
+  --bg:#080d18;
+  --panel:rgba(17,27,45,.78);
+  --text:#f4f7fc;
+  --muted:#a4b1c4;
+  --cyan:#79e4ee;
+  --violet:#aa9cff;
+  --line:rgba(190,211,239,.14);
+  --width:1080px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:90px;
+}
+
+body{
+  min-height:100vh;
+  overflow-x:hidden;
+  color:var(--text);
+  background:
+    radial-gradient(ellipse at 15% 10%,rgba(58,126,171,.17),transparent 34rem),
+    radial-gradient(ellipse at 90% 75%,rgba(112,82,180,.14),transparent 34rem),
+    var(--bg);
+  font:16px/1.7 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+a{color:inherit}
+.wrap{width:min(var(--width),calc(100% - 40px));margin:auto}
+
+#stars{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+  pointer-events:none;
+}
+
+.site{position:relative;z-index:1}
+
+header{
+  position:fixed;
+  inset:0 0 auto;
+  z-index:10;
+  background:rgba(8,13,24,.82);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(18px);
+}
+
+nav{
+  height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.logo{
+  font-size:1.18rem;
+  font-weight:850;
+  letter-spacing:-.05em;
+  text-decoration:none;
+}
+
+.logo span{color:var(--cyan)}
+
+.links{
+  display:flex;
+  align-items:center;
+  gap:28px;
+  list-style:none;
+}
+
+.links a{
+  font-size:.92rem;
+  color:var(--muted);
+  text-decoration:none;
+  transition:.2s;
+}
+
+.links a:hover,.links a.active{color:var(--cyan)}
+
+.menu{
+  display:none;
+  background:transparent;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:7px 11px;
+  font-size:1.1rem;
+}
+
+.hero{
+  min-height:100svh;
+  display:grid;
+  align-items:center;
+  padding:130px 0 80px;
+}
+
+.hero-grid{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  align-items:center;
+  gap:55px;
+}
+
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  padding:7px 13px;
+  border:1px solid var(--line);
+  border-radius:30px;
+  background:rgba(255,255,255,.035);
+  color:#c8d5e6;
+  font-size:.82rem;
+}
+
+.status:before{
+  content:"";
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#65dda0;
+  box-shadow:0 0 12px #65dda0;
+}
+
+h1{
+  margin-top:24px;
+  font-size:clamp(3.5rem,8vw,6.5rem);
+  line-height:.98;
+  letter-spacing:-.075em;
+}
+
+h1 span{
+  display:block;
+  color:transparent;
+  background:linear-gradient(100deg,var(--cyan),#b5c5ff,var(--violet));
+  background-clip:text;
+  -webkit-background-clip:text;
+}
+
+.headline{
+  margin-top:24px;
+  font-size:clamp(1.1rem,2.2vw,1.35rem);
+  font-weight:600;
+  color:#e0e9f5;
+}
+
+.intro{
+  max-width:600px;
+  margin-top:13px;
+  color:var(--muted);
+}
+
+.buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:28px;
+}
+
+.btn{
+  min-height:46px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:0 18px;
+  border-radius:12px;
+  text-decoration:none;
+  font-weight:700;
+  font-size:.9rem;
+  transition:transform .2s,border-color .2s;
+}
+
+.btn:hover{transform:translateY(-3px)}
+
+.btn-main{
+  color:#07131d;
+  background:linear-gradient(110deg,var(--cyan),#b2c8ff);
+  box-shadow:0 9px 28px #79e4ee22;
+}
+
+.btn-ghost{
+  border:1px solid var(--line);
+  background:#ffffff08;
+}
+
+.btn-ghost:hover{border-color:#79e4ee88}
+
+.profile-art{
+  min-height:390px;
+  display:grid;
+  place-items:center;
+  position:relative;
+}
+
+.profile-art:before,
+.profile-art:after{
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  pointer-events:none;
+}
+
+.profile-art:before{
+  width:300px;
+  height:300px;
+  background:radial-gradient(circle,#79e4ee25,transparent 70%);
+}
+
+.profile-art:after{
+  width:245px;
+  height:245px;
+  border:1px solid #79e4ee25;
+  box-shadow:0 0 70px #79e4ee12,inset 0 0 60px #79e4ee0b;
+  animation:spin 22s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+.profile-card{
+  width:min(100%,360px);
+  padding:28px;
+  border-radius:25px;
+  position:relative;
+  border:1px solid #c2ddf82a;
+  background:linear-gradient(145deg,#1a2a42e8,#0a111ee8);
+  box-shadow:0 28px 85px #0006;
+  backdrop-filter:blur(16px);
+  text-align:center;
+}
+
+.card-label{
+  display:flex;
+  justify-content:space-between;
+  color:var(--muted);
+  font-size:.72rem;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+
+.avatar-wrap{
+  width:174px;
+  height:174px;
+  margin:27px auto 22px;
+  padding:5px;
+  border-radius:50%;
+  position:relative;
+  background:conic-gradient(from 20deg,var(--cyan),#879cff,var(--violet),var(--cyan));
+  box-shadow:0 0 35px #79e4ee2b,0 0 75px #aa9cff18;
+}
+
+.avatar-inner{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  overflow:hidden;
+  background:#111d30;
+  display:grid;
+  place-items:center;
+  border:4px solid #101a2b;
+}
+
+.avatar-inner img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:none;
+}
+
+.avatar-fallback{
+  font-size:3.2rem;
+  font-weight:900;
+  letter-spacing:-.08em;
+  color:var(--cyan);
+  text-shadow:0 0 28px #79e4ee66;
+}
+
+.profile-card h2{
+  font-size:1.5rem;
+  letter-spacing:-.04em;
+}
+
+.profile-card p{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:.9rem;
+}
+
+.chips{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-top:20px;
+}
+
+.chips span{
+  padding:5px 10px;
+  border:1px solid var(--line);
+  border-radius:30px;
+  color:#c6d4e7;
+  font-size:.75rem;
+}
+
+section.content{padding:76px 0}
+
+.section-head{
+  text-align:center;
+  margin:0 auto 30px;
+  max-width:650px;
+}
+
+.eyebrow{
+  color:var(--cyan);
+  font-size:.74rem;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+  font-weight:800;
+}
+
+.title{
+  margin-top:6px;
+  font-size:clamp(1.9rem,4vw,2.8rem);
+  letter-spacing:-.055em;
+}
+
+.lead{
+  margin-top:8px;
+  color:var(--muted);
+}
+
+.about-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.box{
+  padding:27px;
+  border:1px solid var(--line);
+  border-radius:19px;
+  background:var(--panel);
+  backdrop-filter:blur(12px);
+  box-shadow:0 16px 50px #0003;
+}
+
+.box small{
+  color:var(--cyan);
+  font-size:.74rem;
+  letter-spacing:.13em;
+  font-weight:800;
+}
+
+.box h3{
+  margin:9px 0 7px;
+  font-size:1.18rem;
+}
+
+.box p{
+  color:var(--muted);
+  font-size:.94rem;
+}
+
+.place{
+  margin-top:16px;
+  padding:20px 24px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  background:#79e4ee0a;
+}
+
+.place small{
+  display:block;
+  color:var(--muted);
+  font-size:.72rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.place strong{
+  display:block;
+  margin-top:3px;
+  font-size:1.1rem;
+}
+
+.pin{font-size:1.7rem}
+
+.social-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:13px;
+}
+
+.social{
+  min-height:118px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:var(--panel);
+  text-decoration:none;
+  color:var(--muted);
+  transition:transform .2s,border-color .2s,color .2s;
+}
+
+.social:hover{
+  transform:translateY(-4px);
+  border-color:#79e4ee77;
+  color:var(--cyan);
+}
+
+.social svg{
+  width:27px;
+  height:27px;
+  fill:currentColor;
+}
+
+.social b{
+  font-size:.86rem;
+  font-weight:650;
+}
+
+.contact-note{
+  text-align:center;
+  color:var(--muted);
+  margin-top:20px;
+  font-size:.9rem;
+}
+
+footer{
+  padding:25px 0 35px;
+  border-top:1px solid var(--line);
+  color:#7f8da2;
+  text-align:center;
+  font-size:.84rem;
+}
+
+@media(max-width:760px){
+  .hero-grid{
+    grid-template-columns:1fr;
+    text-align:center;
+    gap:25px;
+  }
+
+  .intro{margin-inline:auto}
+  .buttons{justify-content:center}
+  .profile-art{min-height:370px}
+  .profile-card{max-width:330px}
+  .avatar-wrap{width:158px;height:158px}
+  .about-grid{grid-template-columns:1fr}
+  .social-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:620px){
+  .wrap{width:calc(100% - 32px)}
+  nav{height:66px}
+  .menu{display:block;cursor:pointer}
+
+  .links{
+    display:none;
+    position:absolute;
+    top:66px;
+    left:0;
+    right:0;
+    padding:18px 20px 22px;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:14px;
+    background:#080d18f7;
+    border-bottom:1px solid var(--line);
+  }
+
+  .links.open{display:flex}
+  .hero{padding-top:115px}
+  h1{font-size:clamp(3.3rem,16vw,5rem)}
+  section.content{padding:62px 0}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{
+    scroll-behavior:auto!important;
+    animation:none!important;
+    transition:none!important;
+  }
+}
+</style>
 </head>
+
 <body>
-  <!-- Floating Particles -->
-  <div class="particles" id="particles"></div>
 
-  <!-- Navigation -->
-  <nav class="navbar" id="navbar">
-    <div class="nav-container">
-      <div class="logo">Chung Văn</div>
-      <div class="mobile-menu" id="mobileMenu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<div class="site">
+
+<header>
+  <nav class="wrap">
+    <a class="logo" href="#home">CHUNG<span>.</span></a>
+
+    <button class="menu" id="menu" aria-label="Mở menu" aria-expanded="false">☰</button>
+
+    <ul class="links" id="links">
+      <li><a href="#home">Trang chủ</a></li>
+      <li><a href="#about">Giới thiệu</a></li>
+      <li><a href="#social">Mạng xã hội</a></li>
+    </ul>
   </nav>
+</header>
 
-  <!-- Mobile Navigation Overlay -->
-  <div class="mobile-nav-overlay" id="mobileNavOverlay">
-    <div class="mobile-social-section">
-      <h3 class="mobile-social-title">Liên kết</h3>
-      <div class="mobile-social-links">
-        <a href="https://www.instagram.com/chungvan.03/" target="_blank" rel="noopener noreferrer" class="mobile-social-link instagram">
-          <div class="mobile-social-icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-            </svg>
-          </div>
-          <div class="mobile-social-info">
-            <span class="mobile-social-platform">Instagram</span>
-            <span class="mobile-social-handle">@chungvan.03</span>
-          </div>
-        </a>
-        
-        <a href="https://github.com/vanchung03" target="_blank" rel="noopener noreferrer" class="mobile-social-link github">
-          <div class="mobile-social-icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-            </svg>
-          </div>
-          <div class="mobile-social-info">
-            <span class="mobile-social-platform">GitHub</span>
-            <span class="mobile-social-handle">vanchung03</span>
-          </div>
-        </a>
-        
-        <a href="https://www.linkedin.com/in/chungvan0803/" target="_blank" rel="noopener noreferrer" class="mobile-social-link linkedin">
-          <div class="mobile-social-icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-            </svg>
-          </div>
-          <div class="mobile-social-info">
-            <span class="mobile-social-platform">LinkedIn</span>
-            <span class="mobile-social-handle">chungvan0803</span>
-          </div>
-        </a>
-        
-        <a href="https://vanchung03.github.io/Page/" target="_blank" rel="noopener noreferrer" class="mobile-social-link portfolio">
-          <div class="mobile-social-icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
-          </div>
-          <div class="mobile-social-info">
-            <span class="mobile-social-platform">Portfolio</span>
-            <span class="mobile-social-handle">vanchung03.github.io</span>
-          </div>
-        </a>
-        
-        <a href="mailto:chungvan.dev@gmail.com" class="mobile-social-link email">
-          <div class="mobile-social-icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-            </svg>
-          </div>
-          <div class="mobile-social-info">
-            <span class="mobile-social-platform">Email</span>
-            <span class="mobile-social-handle">chungvan.dev@gmail.com</span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </div>
+<main>
 
-  <!-- Hero Section -->
-  <section class="hero" id="home">
-    <div class="hero-content">
-      <img src="https://res.cloudinary.com/dynjp5ooj/image/upload/v1744779184/avatars/user_31744779184191_avata2_remove.png" alt="Chung Văn" class="avatar" />
-      <h1>Chung Văn</h1>
-      <p class="subtitle">💻 Backend Developer | Spring Boot Specialist</p>
-      <p class="description">
-        Chuyên gia phát triển backend với niềm đam mê xây dựng hệ thống web an toàn, hiệu quả và có khả năng mở rộng cao.
+<section class="hero" id="home">
+  <div class="wrap hero-grid">
+
+    <div>
+      <div class="status">Hiện đang ở Yeosu, Hàn Quốc</div>
+
+      <h1>Chung <span>Văn.</span></h1>
+
+      <p class="headline">
+        Từng là lập trình viên. Hiện tại, tôi chọn một hành trình khác.
       </p>
-      <div class="cta-buttons">
-        <a href="#contact" class="btn btn-primary">Liên hệ ngay</a>
-        <a href="https://www.facebook.com/chung.van.27512" target="_blank" class="btn btn-outline">Facebook</a>
+
+      <p class="intro">
+        Tôi từng học tập và theo đuổi lĩnh vực lập trình. Cuộc sống đưa tôi
+        đến một ngã rẽ mới, hiện đang sinh sống và làm việc tại Yeosu,
+        Hàn Quốc. Dù thay đổi công việc, tôi vẫn giữ sự tò mò,
+        tinh thần học hỏi và niềm yêu thích công nghệ.
+      </p>
+
+      <div class="buttons">
+        <a class="btn btn-main" href="#about">Tìm hiểu về tôi ↓</a>
+        <a class="btn btn-ghost" href="https://github.com/vanchung03" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
       </div>
     </div>
-  </section>
 
-  <!-- About Section -->
-  <section class="about section" id="about">
-    <div class="container">
-      <h2 class="section-title fade-in-up">Giới thiệu bản thân</h2>
-      <div class="about-content">
-        <div class="about-image fade-in-up">
-          <img src="https://via.placeholder.com/350x350/6366f1/ffffff?text=Developer" alt="About me" />
+    <div class="profile-art">
+      <div class="profile-card">
+
+        <div class="card-label">
+          <span>Personal profile</span>
+          <span>2026</span>
         </div>
-        <div class="about-text fade-in-up">
-          <p>
-            Xin chào! Tôi là <strong>Chung Văn</strong>, một backend developer với kinh nghiệm trong việc phát triển các ứng dụng web sử dụng Java Spring Boot.
-          </p>
-          <p>
-            Tôi chuyên sâu về các công nghệ bảo mật như <strong>Spring Security</strong> và <strong>JWT</strong>, có kinh nghiệm thiết kế và xây dựng RESTful APIs hiệu quả. Tôi luôn tìm cách tối ưu hóa hiệu suất và đảm bảo tính bảo mật cho các hệ thống.
-          </p>
-          <p>
-            Mục tiêu của tôi là không ngừng học hỏi và phát triển, đồng thời đóng góp vào các dự án có ý nghĩa để tạo ra giá trị thực sự cho người dùng.
-          </p>
+
+        <div class="avatar-wrap">
+          <div class="avatar-inner">
+
+            <!-- ẢNH ĐẠI DIỆN GITHUB -->
+            <img
+              id="avatarImage"
+              src="images/avatar.jpg"
+              alt="Ảnh đại diện Chung Văn"
+              onload="this.style.display='block';document.getElementById('avatarFallback').style.display='none'"
+              onerror="this.style.display='none'"
+            >
+
+            <span class="avatar-fallback" id="avatarFallback">CV</span>
+
+          </div>
         </div>
+
+        <h2>Chung Văn</h2>
+        <p>A different path, the same curiosity.</p>
+
+        <div class="chips">
+          <span>Former programmer</span>
+          <span>Yeosu · Korea</span>
+          <span>Keep learning</span>
+        </div>
+
       </div>
     </div>
-  </section>
 
-  <!-- Contact Section -->
-  <section class="contact section" id="contact">
-    <div class="container">
-      <h2 class="section-title fade-in-up">Liên hệ với tôi</h2>
-      <div class="contact-content">
-        <div class="contact-info fade-in-up">
-          <div class="contact-item">
-            <div class="contact-icon">📧</div>
-            <div>
-              <strong>Email:</strong><br>
-              <a href="mailto:chungvan.dev@gmail.com" style="color: var(--text-color); text-decoration: none;">chungvan.dev@gmail.com</a>
-            </div>
-          </div>
-          <div class="contact-item">
-            <div class="contact-icon">📱</div>
-            <div>
-              <strong>Điện thoại:</strong><br>
-              <a href="tel:+84123456789" style="color: var(--text-color); text-decoration: none;">+84 123 456 789</a>
-            </div>
-          </div>
-          <div class="contact-item">
-            <div class="contact-icon">👤</div>
-            <div>
-              <strong>Facebook:</strong><br>
-              <a href="https://www.facebook.com/chung.van.27512" target="_blank" style="color: var(--text-color); text-decoration: none;">facebook.com/chung.van.27512</a>
-            </div>
-          </div>
-          <div class="contact-item">
-            <div class="contact-icon">📍</div>
-            <div>
-              <strong>Địa chỉ:</strong><br>
-              Thanh Hóa, Việt Nam
-            </div>
-          </div>
-        </div>
-        
-        <div class="contact-form fade-in-up">
-          <h3>Gửi tin nhắn</h3>
-          <form>
-            <div class="form-group">
-              <label for="name">Họ và tên:</label>
-              <input type="text" id="name" name="name" required>
-            </div>
-            <div class="form-group">
-              <label for="email">Email:</label>
-              <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-              <label for="subject">Tiêu đề:</label>
-              <input type="text" id="subject" name="subject" required>
-            </div>
-            <div class="form-group">
-              <label for="message">Tin nhắn:</label>
-              <textarea id="message" name="message" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Gửi tin nhắn</button>
-          </form>
-        </div>
-      </div>
+  </div>
+</section>
+
+<section class="content" id="about">
+  <div class="wrap">
+
+    <div class="section-head">
+      <p class="eyebrow">About me</p>
+      <h2 class="title">Một chút về hành trình của tôi</h2>
+      <p class="lead">Không ngừng thay đổi, không ngừng trưởng thành.</p>
     </div>
-  </section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="social-links">
-        <a href="https://www.facebook.com/chung.van.27512" target="_blank" rel="noopener noreferrer" class="social-link">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-          </svg>
-        </a>
-        <a href="https://github.com/vanchung03" target="_blank" rel="noopener noreferrer" class="social-link">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-          </svg>
-        </a>
-        <a href="https://www.instagram.com/chungvan.03/" target="_blank" rel="noopener noreferrer" class="social-link">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-          </svg>
-        </a>
-        <a href="https://www.linkedin.com/in/chungvan0803/" target="_blank" rel="noopener noreferrer" class="social-link">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-          </svg>
-        </a>
-        <a href="mailto:chungvan.dev@gmail.com" class="social-link">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-          </svg>
-        </a>
-      </div>
-      <p>&copy; 2025 Chung Văn. Tất cả quyền được bảo lưu.</p>
+    <div class="about-grid">
+
+      <article class="box">
+        <small>01 / BEFORE</small>
+        <h3>Con đường lập trình</h3>
+        <p>
+          Tôi từng học Công nghệ thông tin và theo đuổi lập trình.
+          Quãng thời gian đó giúp tôi rèn luyện tư duy logic,
+          sự kiên nhẫn và cách giải quyết vấn đề.
+        </p>
+      </article>
+
+      <article class="box">
+        <small>02 / NOW</small>
+        <h3>Chương mới tại Hàn Quốc</h3>
+        <p>
+          Hiện tại tôi đang sống và làm việc tại Yeosu.
+          Một môi trường mới, những trải nghiệm mới và cơ hội
+          để học hỏi, trưởng thành qua từng ngày.
+        </p>
+      </article>
+
     </div>
-  </footer>
 
-  <script>
-    // Create floating particles
-    function createParticles() {
-      const particles = document.getElementById('particles');
-      const particleCount = 50;
-      
-      for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 15 + 's';
-        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-        particles.appendChild(particle);
-      }
-    }
+    <div class="place">
+      <div>
+        <small>Current location</small>
+        <strong>Yeosu, South Korea 🇰🇷</strong>
+      </div>
+      <span class="pin" aria-hidden="true">📍</span>
+    </div>
 
-    // Mobile menu functionality
-    const mobileMenu = document.getElementById('mobileMenu');
-    const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+  </div>
+</section>
 
-    mobileMenu.addEventListener('click', function() {
-      this.classList.toggle('active');
-      mobileNavOverlay.classList.toggle('active');
-      document.body.style.overflow = mobileNavOverlay.classList.contains('active') ? 'hidden' : 'auto';
-    });
+<section class="content" id="social">
+  <div class="wrap">
 
-    // Close mobile menu when clicking outside
-    mobileNavOverlay.addEventListener('click', function(e) {
-      if (e.target === mobileNavOverlay) {
-        mobileMenu.classList.remove('active');
-        mobileNavOverlay.classList.remove('active');
-        document.body.style.overflow = 'auto';
-      }
-    });
+    <div class="section-head">
+      <p class="eyebrow">Find me online</p>
+      <h2 class="title">Kết nối với tôi</h2>
+      <p class="lead">
+        Theo dõi và giữ liên lạc qua các nền tảng mạng xã hội.
+      </p>
+    </div>
 
-    // Navbar scroll effect
-    let lastScrollY = window.scrollY;
-    window.addEventListener('scroll', function() {
-      const navbar = document.getElementById('navbar');
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY > 50) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
-      
-      lastScrollY = currentScrollY;
-    });
+    <div class="social-grid">
 
-    // Smooth scrolling
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-          
-          // Close mobile menu if open
-          mobileMenu.classList.remove('active');
-          mobileNavOverlay.classList.remove('active');
-          document.body.style.overflow = 'auto';
-        }
-      });
-    });
+      <a class="social" href="https://github.com/vanchung03" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.08c-3.1.67-3.76-1.32-3.76-1.32-.5-1.28-1.23-1.62-1.23-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 1.7 2.62 1.21 3.26.93.1-.72.39-1.21.71-1.49-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.05 1.15a10.6 10.6 0 0 1 5.55 0c2.11-1.45 3.04-1.15 3.04-1.15.61 1.54.23 2.68.12 2.96.71.78 1.14 1.78 1.14 3 0 4.29-2.61 5.23-5.1 5.51.4.35.76 1.03.76 2.08v3.09c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/>
+        </svg>
+        <b>GitHub</b>
+      </a>
 
-    // Intersection Observer for animations
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
+      <a class="social" href="https://www.facebook.com/chung.van.27512" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24">
+          <path d="M13.6 21v-8.2h2.75l.41-3.2H13.6V7.56c0-.93.26-1.56 1.59-1.56h1.69V3.14A22.2 22.2 0 0 0 14.42 3c-2.44 0-4.11 1.49-4.11 4.23V9.6H7.55v3.2h2.76V21h3.29Z"/>
+        </svg>
+        <b>Facebook</b>
+      </a>
 
-    const observer = new IntersectionObserver(function(entries) {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, observerOptions);
+      <a class="social" href="https://www.instagram.com/chungvan.03/" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24">
+          <path d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2Zm0 2A3.8 3.8 0 0 0 4 7.8v8.4A3.8 3.8 0 0 0 7.8 20h8.4a3.8 3.8 0 0 0 3.8-3.8V7.8A3.8 3.8 0 0 0 16.2 4H7.8ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/>
+        </svg>
+        <b>Instagram</b>
+      </a>
 
-    document.querySelectorAll('.fade-in-up').forEach(el => {
-      observer.observe(el);
-    });
+      <a class="social" href="https://www.linkedin.com/in/chungvan0803/" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24">
+          <path d="M5.2 3a2.2 2.2 0 1 1 0 4.4 2.2 2.2 0 0 1 0-4.4ZM3.3 9h3.8v12H3.3V9Zm6.2 0h3.65v1.64h.05A4 4 0 0 1 16.8 8.7c3.9 0 4.62 2.56 4.62 5.9V21h-3.8v-5.68c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.48-2.2 3V21H9.5V9Z"/>
+        </svg>
+        <b>LinkedIn</b>
+      </a>
 
-    // Form submission with animation
-    document.querySelector('form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const button = this.querySelector('button');
-      const originalText = button.textContent;
-      
-      // Button animation
-      button.style.transform = 'scale(0.95)';
-      button.textContent = 'Đang gửi...';
-      button.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-      
-      setTimeout(() => {
-        button.textContent = 'Đã gửi! ✓';
-        button.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-        
-        setTimeout(() => {
-          button.textContent = originalText;
-          button.style.background = '';
-          button.style.transform = '';
-          this.reset();
-        }, 2000);
-      }, 1500);
-    });
+    </div>
 
-    // Add ripple effect to buttons
-    document.querySelectorAll('.btn, .mobile-social-link').forEach(button => {
-      button.addEventListener('click', function(e) {
-        const ripple = document.createElement('div');
-        const rect = this.getBoundingClientRect();
-        const size = Math.max(rect.width, rect.height);
-        const x = e.clientX - rect.left - size / 2;
-        const y = e.clientY - rect.top - size / 2;
-        
-        ripple.style.cssText = `
-          position: absolute;
-          width: ${size}px;
-          height: ${size}px;
-          left: ${x}px;
-          top: ${y}px;
-          background: rgba(255, 255, 255, 0.3);
-          border-radius: 50%;
-          transform: scale(0);
-          animation: ripple 0.6s linear;
-          pointer-events: none;
-          z-index: 1000;
-        `;
-        
-        this.style.position = 'relative';
-        this.style.overflow = 'hidden';
-        this.appendChild(ripple);
-        
-        setTimeout(() => {
-          ripple.remove();
-        }, 600);
-      });
-    });
+    <p class="contact-note">
+      Cảm ơn bạn đã ghé thăm trang cá nhân của tôi.
+    </p>
 
-    // Parallax effect for hero section
-    window.addEventListener('scroll', () => {
-      const scrolled = window.pageYOffset;
-      const heroContent = document.querySelector('.hero-content');
-      const parallaxSpeed = 0.3;
-      
-      if (scrolled < window.innerHeight) {
-        heroContent.style.transform = `translateY(${scrolled * parallaxSpeed}px)`;
-      }
-    });
+  </div>
+</section>
 
-    // Enhanced avatar interaction
-    const avatar = document.querySelector('.avatar');
-    if (avatar) {
-      avatar.addEventListener('mouseenter', function() {
-        this.style.transform = 'scale(1.15) rotate(5deg)';
-        this.style.filter = 'brightness(1.2) contrast(1.1)';
-      });
-      
-      avatar.addEventListener('mouseleave', function() {
-        this.style.transform = '';
-        this.style.filter = '';
+</main>
+
+<footer>
+  <div class="wrap">
+    © <span id="year"></span> Chung Văn · A different path, the same curiosity.
+  </div>
+</footer>
+
+</div>
+
+<script>
+// Menu điện thoại
+const menu = document.getElementById("menu");
+const links = document.getElementById("links");
+
+menu.addEventListener("click", () => {
+  const open = links.classList.toggle("open");
+  menu.setAttribute("aria-expanded", String(open));
+  menu.textContent = open ? "✕" : "☰";
+});
+
+links.querySelectorAll("a").forEach(a => {
+  a.addEventListener("click", () => {
+    links.classList.remove("open");
+    menu.setAttribute("aria-expanded", "false");
+    menu.textContent = "☰";
+  });
+});
+
+// Năm hiện tại
+document.getElementById("year").textContent = new Date().getFullYear();
+
+// Hiệu ứng ngôi sao nền
+(() => {
+  const canvas = document.getElementById("stars");
+  const ctx = canvas.getContext("2d");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const dots = [];
+  let w = 0, h = 0, dpr = 1, raf = 0;
+  const count = 65;
+
+  function resize() {
+    w = innerWidth;
+    h = innerHeight;
+    dpr = Math.min(devicePixelRatio || 1, 2);
+
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    dots.length = 0;
+
+    for (let i = 0; i < count; i++) {
+      dots.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.2 + .25,
+        phase: Math.random() * Math.PI * 2
       });
     }
 
-    // Advanced typing effect
-    function typeWriter(element, text, speed = 50) {
-      let i = 0;
-      element.innerHTML = '';
-      element.style.borderRight = '2px solid var(--accent-color)';
-      
-      function type() {
-        if (i < text.length) {
-          element.innerHTML += text.charAt(i);
-          i++;
-          setTimeout(type, speed);
-        } else {
-          // Remove cursor after typing
-          setTimeout(() => {
-            element.style.borderRight = 'none';
-          }, 1000);
-        }
-      }
-      type();
+    paint(0);
+  }
+
+  function paint(t) {
+    ctx.clearRect(0, 0, w, h);
+
+    dots.forEach(p => {
+      const alpha = .12 + .25 * (.5 + .5 * Math.sin(t * .001 + p.phase));
+      ctx.fillStyle = `rgba(145,213,239,${alpha})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    if (!reduce && !document.hidden) {
+      raf = requestAnimationFrame(paint);
     }
+  }
 
-    // Initialize typing effect
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        const subtitle = document.querySelector('.hero .subtitle');
-        const originalText = subtitle.textContent;
-        typeWriter(subtitle, originalText, 80);
-      }, 1000);
-    });
+  function start() {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(paint);
+  }
 
-    // Mouse trail effect
-    const trail = [];
-    const trailLength = 20;
+  addEventListener("resize", resize, { passive: true });
 
-    document.addEventListener('mousemove', (e) => {
-      trail.push({ x: e.clientX, y: e.clientY });
-      
-      if (trail.length > trailLength) {
-        trail.shift();
-      }
-      
-      // Remove existing trail elements
-      document.querySelectorAll('.mouse-trail').forEach(el => el.remove());
-      
-      // Create new trail elements
-      trail.forEach((point, index) => {
-        const trailElement = document.createElement('div');
-        trailElement.className = 'mouse-trail';
-        trailElement.style.cssText = `
-          position: fixed;
-          left: ${point.x}px;
-          top: ${point.y}px;
-          width: ${(index + 1) * 2}px;
-          height: ${(index + 1) * 2}px;
-          background: radial-gradient(circle, rgba(99, 102, 241, ${(index + 1) / trailLength}), transparent);
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 9999;
-          transform: translate(-50%, -50%);
-          animation: trailFade 0.5s ease-out forwards;
-        `;
-        document.body.appendChild(trailElement);
-        
-        setTimeout(() => {
-          trailElement.remove();
-        }, 500);
-      });
-    });
+  document.addEventListener("visibilitychange", () => {
+    document.hidden ? cancelAnimationFrame(raf) : start();
+  });
 
-    // Scroll progress indicator
-    const createScrollProgress = () => {
-      const progressBar = document.createElement('div');
-      progressBar.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 0%;
-        height: 3px;
-        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-        z-index: 10000;
-        transition: width 0.3s ease;
-      `;
-      document.body.appendChild(progressBar);
+  resize();
 
-      window.addEventListener('scroll', () => {
-        const scrollTop = document.documentElement.scrollTop;
-        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const progress = (scrollTop / scrollHeight) * 100;
-        progressBar.style.width = progress + '%';
-      });
-    };
+  if (!reduce) start();
+})();
+</script>
 
-    // Enhanced social link animations
-    document.querySelectorAll('.social-link').forEach(link => {
-      link.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-8px) scale(1.1) rotate(5deg)';
-        this.style.boxShadow = 'var(--shadow-glow)';
-      });
-      
-      link.addEventListener('mouseleave', function() {
-        this.style.transform = '';
-        this.style.boxShadow = '';
-      });
-    });
-
-    // Contact items stagger animation
-    const contactItems = document.querySelectorAll('.contact-item');
-    contactItems.forEach((item, index) => {
-      item.style.animationDelay = `${index * 0.2}s`;
-    });
-
-    // Form field focus effects
-    document.querySelectorAll('.form-group input, .form-group textarea').forEach(field => {
-      field.addEventListener('focus', function() {
-        this.parentElement.style.transform = 'translateY(-2px)';
-        this.style.borderColor = 'var(--primary-color)';
-        this.style.boxShadow = '0 10px 30px rgba(99, 102, 241, 0.2)';
-      });
-      
-      field.addEventListener('blur', function() {
-        this.parentElement.style.transform = '';
-        if (!this.value) {
-          this.style.borderColor = 'var(--glass-border)';
-          this.style.boxShadow = '';
-        }
-      });
-    });
-
-    // Add CSS animations dynamically
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes ripple {
-        to {
-          transform: scale(4);
-          opacity: 0;
-        }
-      }
-      
-      @keyframes trailFade {
-        to {
-          opacity: 0;
-          transform: translate(-50%, -50%) scale(0);
-        }
-      }
-      
-      .contact-item {
-        animation: slideInLeft 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
-      }
-      
-      .about-text p {
-        animation: fadeInLeft 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
-      }
-      
-      /* Smooth transitions for all interactive elements */
-      * {
-        transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      }
-      
-      /* Enhanced button hover states */
-      .btn::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        transition: all 0.4s ease;
-      }
-      
-      .btn:hover::after {
-        width: 300px;
-        height: 300px;
-      }
-      
-      /* Glowing text effect */
-      .hero h1:hover {
-        text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
-      }
-      
-      /* Mobile social link enhanced animations */
-      @media (max-width: 768px) {
-        .mobile-social-link {
-          animation: slideInUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
-        }
-        
-        .mobile-social-link:nth-child(1) { animation-delay: 0.1s; }
-        .mobile-social-link:nth-child(2) { animation-delay: 0.2s; }
-        .mobile-social-link:nth-child(3) { animation-delay: 0.3s; }
-        .mobile-social-link:nth-child(4) { animation-delay: 0.4s; }
-        .mobile-social-link:nth-child(5) { animation-delay: 0.5s; }
-      }
-      
-      @keyframes slideInUp {
-        0% {
-          opacity: 0;
-          transform: translateY(50px);
-        }
-        100% {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Initialize all effects
-    createParticles();
-    createScrollProgress();
-
-    // Performance optimization: throttle scroll events
-    function throttle(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
-    }
-
-    // Apply throttling to scroll events
-    window.addEventListener('scroll', throttle(() => {
-      // Parallax and other scroll effects here
-    }, 16)); // ~60fps
-
-    // Preload animations
-    document.addEventListener('DOMContentLoaded', () => {
-      // Add loading animation
-      const loader = document.createElement('div');
-      loader.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: var(--darker-bg);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        transition: opacity 0.5s ease;
-      `;
-      
-      const spinner = document.createElement('div');
-      spinner.style.cssText = `
-        width: 50px;
-        height: 50px;
-        border: 3px solid var(--glass-border);
-        border-top: 3px solid var(--primary-color);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      `;
-      
-      const spinAnimation = document.createElement('style');
-      spinAnimation.textContent = `
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `;
-      document.head.appendChild(spinAnimation);
-      
-      loader.appendChild(spinner);
-      document.body.appendChild(loader);
-
-      // Remove loader after page load
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          loader.style.opacity = '0';
-          setTimeout(() => {
-            loader.remove();
-          }, 500);
-        }, 1000);
-      });
-    });
-
-    // Easter egg: Konami code
-    const konamiCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
-    let konamiIndex = 0;
-    
-    document.addEventListener('keydown', (e) => {
-      if (e.keyCode === konamiCode[konamiIndex]) {
-        konamiIndex++;
-        if (konamiIndex === konamiCode.length) {
-          // Activate party mode
-          document.body.style.animation = 'rainbow 2s linear infinite';
-          const partyStyle = document.createElement('style');
-          partyStyle.textContent = `
-            @keyframes rainbow {
-              0% { filter: hue-rotate(0deg); }
-              100% { filter: hue-rotate(360deg); }
-            }
-          `;
-          document.head.appendChild(partyStyle);
-          
-          setTimeout(() => {
-            document.body.style.animation = '';
-            partyStyle.remove();
-          }, 10000);
-          
-          konamiIndex = 0;
-        }
-      } else {
-        konamiIndex = 0;
-      }
-    });
-  </script>
 </body>
 </html>
